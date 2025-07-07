@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Attendance Project</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* General styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: white;
+      margin: 0;
+    }
+
+    .container {
+      background-color: pink;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      max-width: 800px;
+      margin: 20px auto;
+    }
+
+    .container h1, h2 {
+      text-align: center;
+    }
+
+    .add-attendance, .daily-attendance, .average-attendance {
+      margin-bottom: 20px;
+    }
+
+    input[type="text"], input[type="date"], select {
+      padding: 8px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background-color: black;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: pink;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    /* Header styles */
+    header {
+      background-color: #333;
+      color: white;
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo img {
+      width: 50px; /* Adjust size as needed */
+      margin-right: 10px;
+    }
+
+    nav {
+      display: flex;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    nav a:hover {
+      background-color: #555;
+    }
+
+    /* Footer styles */
+    footer {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-links {
+      display: flex;
+    }
+
+    .footer-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* Overlay styles */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000; /* Ensure it's above other content */
+    }
+
+    .modal {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    .modal h2 {
+      margin-top: 0;
+    }
+
+    .modal p {
+      margin-bottom: 15px;
+    }
+
+    .modal button {
+      padding: 8px 16px;
+      background-color: black;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .modal button:hover {
+      background-color: pink;
+    }
+
+    .overlay.active {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <h3>Student Attendance Management System</h3>
+    </div>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#about">About Us</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h2>Add Attendance</h2>
+    <label for="studentName">Student Name:</label>
+    <input type="text" id="studentName" placeholder="Enter student name">
+    <label for="attendanceDate">Date:</label>
+    <input type="date" id="attendanceDate">
+    <label for="attendanceStatus">Attendance:</label>
+    <select id="attendanceStatus">
+      <option value="present">Present</option>
+      <option value="absent">Absent</option>
+    </select>
+    <button onclick="addAttendance()">Add Attendance</button>
+
+    <div class="daily-attendance">
+      <h2>Daily Attendance</h2>
+      <table id="dailyAttendanceTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Student Name</th>
+            <th>Attendance</th>
+          </tr>
+        </thead>
+        <tbody id="dailyAttendanceTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="average-attendance">
+      <h2>Average Attendance</h2>
+      <table id="averageAttendanceTable">
+        <thead>
+          <tr>
+            <th>Student Name</th>
+            <th>Average Attendance (%)</th>
+          </tr>
+        </thead>
+        <tbody id="averageAttendanceTableBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Home Modal -->
+  <div id="homeModal" class="overlay">
+    <div class="modal">
+      <h2>Welcome to Student Attendance Management System</h2>
+      <p>This is the home content. You can add any welcome message or introduction here.</p>
+      <button onclick="closeModal('homeModal')">Close</button>
+    </div>
+  </div>
+
+  <!-- About Us Modal -->
+  <div id="aboutUsModal" class="overlay">
+    <div class="modal">
+      <h2>About Us</h2>
+      <p>In educational institutions, monitoring and managing student attendance play a crucial role in ensuring academic success and 
+      institutional accountability.Traditionally, attendance was recorded manually, often leading to inefficiencies and errors. However, 
+      with advancements in technology, the implementation of a Student Attendance Management System (SAMS) offers a comprehensive solution        
+      to streamline this process.A SAMS is a web-based application designed to automate and simplify the task of recording and tracking 
+      student attendance.It provides teachers, administrators, and even students themselves with a centralized platform to efficiently 
+      manage attendance data in real-time.This system not only reduces the administrative burden associated with attendance tracking but
+      also enhances data accuracy and transparency.</p>
+      <button onclick="closeModal('aboutUsModal')">Close</button>
+    </div>
+  </div>
+
+  <!-- Contact Modal -->
+  <div id="contactModal" class="overlay">
+    <div class="modal">
+  <p>Get in touch with us for any queries or feedback:</p>
+  <ul>
+    <li>
+      <i class="fa fa-phone"></i>
+      <span>Phone:</span>
+      <a href="8074161784">+8074161784</a>
+    </li>
+    <li>
+      <i class="fa fa-envelope"></i>
+      <span>Email:</span>
+      <a href="sams:info@example.com">sams:info@example.com</a>
+    </li>
+    <li>
+      <i class="fa fa-map-marker"></i>
+      <span>Address:</span>
+      <address>Maisammaguda,Dulapally(Post.Via.Kompally),Medchal-Malkajgiri-500100</address>
+    </li>
+  </ul>
+  <p>You can also fill out the form on our <a href="#">Contact Us page</a>.</p>
+</div></p>
+      <button onclick="closeModal('contactModal')">Close</button>
+    </div>
+  </div>
+
+  <footer>
+    <div>&copy; 2024 Student Attendance Management System</div>
+  </footer>
+
+  <script>
+    // Function to add attendance
+    function addAttendance() {
+      let studentName = document.getElementById('studentName').value.trim();
+      let attendanceDate = document.getElementById('attendanceDate').value;
+      let attendanceStatus = document.getElementById('attendanceStatus').value;
+
+      if (studentName === '' || attendanceDate === '') {
+        alert('Please enter student name and select date');
+        return;
+      }
+
+      let attendanceRecord = {
+        date: attendanceDate,
+        status: attendanceStatus
+      };
+
+      // Retrieve existing attendance records from local storage or initialize if empty
+      let studentsAttendance = JSON.parse(localStorage.getItem('studentsAttendance')) || {};
+
+      // Initialize student's attendance record if not present
+      if (!studentsAttendance[studentName]) {
+        studentsAttendance[studentName] = [];
+      }
+
+      // Add new attendance record
+      studentsAttendance[studentName].push(attendanceRecord);
+
+      // Update local storage
+      localStorage.setItem('studentsAttendance', JSON.stringify(studentsAttendance));
+
+      // Clear form fields
+      document.getElementById('studentName').value = '';
+      document.getElementById('attendanceDate').value = '';
+      document.getElementById('attendanceStatus').value = 'present';
+
+      // Update tables
+      updateDailyAttendanceTable();
+      updateAverageAttendanceTable();
+    }
+
+    // Function to update daily attendance table
+    function updateDailyAttendanceTable() {
+      let studentsAttendance = JSON.parse(localStorage.getItem('studentsAttendance')) || {};
+      let dailyAttendanceTableBody = document.getElementById('dailyAttendanceTableBody');
+      dailyAttendanceTableBody.innerHTML = '';
+
+      Object.keys(studentsAttendance).forEach(student => {
+        studentsAttendance[student].forEach(record => {
+          let tr = document.createElement('tr');
+          let tdDate = document.createElement('td');
+          let tdStudent = document.createElement('td');
+          let tdAttendance = document.createElement('td');
+
+          tdDate.textContent = record.date;
+          tdStudent.textContent = student;
+          tdAttendance.textContent = record.status === 'present' ? 'Present' : 'Absent';
+
+          tr.appendChild(tdDate);
+          tr.appendChild(tdStudent);
+          tr.appendChild(tdAttendance);
+
+          dailyAttendanceTableBody.appendChild(tr);
+        });
+      });
+    }
+
+    // Function to update average attendance table
+    function updateAverageAttendanceTable() {
+      let studentsAttendance = JSON.parse(localStorage.getItem('studentsAttendance')) || {};
+      let averageAttendanceTableBody = document.getElementById('averageAttendanceTableBody');
+      averageAttendanceTableBody.innerHTML = '';
+
+      Object.keys(studentsAttendance).forEach(student => {
+        let totalDays = studentsAttendance[student].length;
+        let presentDays = studentsAttendance[student].filter(record => record.status === 'present').length;
+        let averageAttendance = (presentDays / totalDays) * 100 || 0;
+
+        let tr = document.createElement('tr');
+        let tdStudent = document.createElement('td');
+        let tdAverageAttendance = document.createElement('td');
+
+        tdStudent.textContent = student;
+        tdAverageAttendance.textContent = averageAttendance.toFixed(2) + '%';
+
+        tr.appendChild(tdStudent);
+        tr.appendChild(tdAverageAttendance);
+
+        averageAttendanceTableBody.appendChild(tr);
+      });
+    }
+
+    // Function to open modal
+    function openModal(modalId) {
+      var modal = document.getElementById(modalId);
+      modal.classList.add('active');
+    }
+
+    // Function to close modal
+    function closeModal(modalId) {
+      var modal = document.getElementById(modalId);
+      modal.classList.remove('active');
+    }
+
+    // Event listeners to open modals
+    document.addEventListener('DOMContentLoaded', function() {
+      var homeLink = document.querySelector('nav a[href="#home"]');
+      var aboutUsLink = document.querySelector('nav a[href="#about"]');
+      var contactLink = document.querySelector('nav a[href="#contact"]');
+      var footerHomeLink = document.querySelector('footer a[href="#home"]');
+      var footerAboutLink = document.querySelector('footer a[href="#about"]');
+      var footerContactLink = document.querySelector('footer a[href="#contact"]');
+
+      homeLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        openModal('homeModal');
+      });
+
+      aboutUsLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        openModal('aboutUsModal');
+      });
+
+      contactLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        openModal('contactModal');
+      });
+
+      footerHomeLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        openModal('homeModal');
+      });
+
+      footerAboutLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        openModal('aboutUsModal');
+      });
+
+      footerContactLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        openModal('contactModal');
+      });
+
+      // Display initial tables on page load
+      updateDailyAttendanceTable();
+      updateAverageAttendanceTable();
+    });
+
+  </script>
+</body>
+</html>
